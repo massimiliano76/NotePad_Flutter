@@ -20,7 +20,6 @@ class _HomeState extends State<Home> {
               onPressed: () => Navigator.pop(context),
               child: Text(
                 "Cancel",
-                style: TextStyle(color: CupertinoColors.destructiveRed),
               ),
               minSize: 5.2,
             ),
@@ -30,11 +29,15 @@ class _HomeState extends State<Home> {
               },
               child: Text(
                 "Save",
-                style: TextStyle(color: CupertinoColors.darkBackgroundGray),
               ),
             )
           ],
-          title: Text("Add Anotation"),
+          title: Text(
+            "Add Anotation",
+            style: TextStyle(
+              fontSize: 16,
+            ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
