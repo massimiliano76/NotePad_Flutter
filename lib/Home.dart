@@ -1,3 +1,6 @@
+import 'package:NotePad/components/AlertDialogCupertino.dart';
+import 'package:NotePad/database/NotepadHelper.dart';
+import 'package:NotePad/database/models/Notepad.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -10,58 +13,65 @@ class _HomeState extends State<Home> {
   TextEditingController _titleController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
 
+  var _database = NotepadHelper();
+
+  List<Notepad> _notepads = List<Notepad>();
+
   _showCreateRegister() {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          actions: [
-            CupertinoButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                "Cancel",
-              ),
-              minSize: 5.2,
-            ),
-            CupertinoButton(
-              onPressed: () {
-                // Save
-              },
-              child: Text(
-                "Save",
-              ),
-            )
-          ],
-          title: Text(
-            "Add Anotation",
-            style: TextStyle(
-              fontSize: 16,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CupertinoTextField(
-                controller: _titleController,
-                autofocus: true,
-                placeholder: "Digite o título...",
-                placeholderStyle: TextStyle(color: CupertinoColors.systemGrey2),
-                maxLines: 1,
-                maxLength: 50,
-              ),
-              SizedBox(height: 10),
-              CupertinoTextField(
-                controller: _descriptionController,
-                placeholder: "Digite a descrição...",
-                placeholderStyle: TextStyle(color: CupertinoColors.systemGrey2),
-                maxLines: null,
-                keyboardType: TextInputType.multiline,
-              ),
-            ],
-          ),
+        return AlertDialogCupertino(
+          onPressed: () {
+            _saveNotePad();
+            Navigator.pop(context);
+          },
+          firstController: _titleController,
+          secondController: _descriptionController,
         );
       },
     );
+  }
+
+  _getNotePadList() async {
+    List notepadsList = await _database.getNotePadListHelper();
+
+    List<Notepad> notepadsTemp = List<Notepad>();
+    for (var item in notepadsList) {
+      Notepad notepad = Notepad.fromMap(item);
+      notepadsTemp.add(notepad);
+    }
+
+    setState(() {
+      _notepads = notepadsTemp;
+    });
+
+    notepadsTemp = null;
+
+    print(notepadsList.toString());
+  }
+
+  _saveNotePad() async {
+    String title = _titleController.text;
+    String description = _descriptionController.text;
+
+    String dataConvert = DateTime.now().toString();
+
+    Notepad notepad = Notepad(title, description, dataConvert);
+    int result = await _database.saveNotepadHelper(notepad);
+
+    _titleController.clear();
+    _descriptionController.clear();
+
+    _getNotePadList();
+
+    print("Save notepad: ${result.toString()}");
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getNotePadList();
   }
 
   @override
@@ -77,7 +87,25 @@ class _HomeState extends State<Home> {
         backgroundColor: CupertinoColors.systemGrey,
         shadowColor: Colors.transparent,
       ),
-      body: Container(),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: _notepads.length,
+              itemBuilder: (context, index) {
+                final item = _notepads[index];
+
+                return Card(
+                  child: ListTile(
+                    title: Text("${item.title} - ${item.data}"),
+                    subtitle: Text(item.description),
+                  ),
+                );
+              },
+            ),
+          )
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showCreateRegister();
