@@ -1,4 +1,4 @@
-import 'package:NotePad/database/NotepadHelper.dart';
+import 'package:NotePad/database/notepad_helper.dart';
 
 class Notepad {
   int id;

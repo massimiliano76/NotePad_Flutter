@@ -1,10 +1,11 @@
 import 'package:NotePad/components/AlertDialogCupertino.dart';
-import 'package:NotePad/database/NotepadHelper.dart';
+import 'package:NotePad/database/notepad_helper.dart';
 import 'package:NotePad/database/models/Notepad.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -19,15 +20,32 @@ class _HomeState extends State<Home> {
 
   List<Notepad> _notepads = List<Notepad>();
 
-  _showCreateRegister() {
+  _showCreateRegister({Notepad notepad}) {
+    String textSaveUpdate = "";
+
+    if (notepad == null) {
+      textSaveUpdate = "Save";
+
+      _titleController.text = "";
+      _descriptionController.text = "";
+    } else {
+      textSaveUpdate = "Update";
+
+      _titleController.text = notepad.title;
+      _descriptionController.text = notepad.description;
+    }
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialogCupertino(
+          title: "$textSaveUpdate Anotation",
           onPressed: () {
-            _saveNotePad();
+            _saveUpdateNotepad(notepad: notepad);
             Navigator.pop(context);
           },
+          firstTextButton: textSaveUpdate,
+          // secondTextButton: textSaveUpdate,
           firstController: _titleController,
           secondController: _descriptionController,
         );
@@ -53,21 +71,25 @@ class _HomeState extends State<Home> {
     print(notepadsList.toString());
   }
 
-  _saveNotePad() async {
+  _saveUpdateNotepad({Notepad notepad}) async {
     String title = _titleController.text;
     String description = _descriptionController.text;
 
     String dataConvert = DateTime.now().toString();
 
-    Notepad notepad = Notepad(title, description, dataConvert);
-    int result = await _database.saveNotepadHelper(notepad);
+    if (notepad == null) {
+      Notepad newNotepad = Notepad(title, description, dataConvert);
+      int result = await _database.saveNotepadHelper(newNotepad);
+    } else {
+      notepad.title = title;
+      notepad.description = description;
+      int result = await _database.updateNotepad(notepad);
+    }
 
     _titleController.clear();
     _descriptionController.clear();
 
     _getNotePadList();
-
-    print("Save notepad: ${result.toString()}");
   }
 
   _convertData(String data) {
@@ -75,7 +97,7 @@ class _HomeState extends State<Home> {
 
     // year: y - month: M - Day: d
     // var formatador = DateFormat("dd/MMMM/y \'às' H:mm");
-    var formatador = DateFormat.yMMMMd("pt_BR");
+    var formatador = DateFormat.yMd("pt_BR");
 
     DateTime dataConverted = DateTime.parse(data);
     String resultConversion = formatador.format(dataConverted);
@@ -114,6 +136,30 @@ class _HomeState extends State<Home> {
                   child: ListTile(
                     title: Text("${item.title} - ${_convertData(item.data)}"),
                     subtitle: Text(item.description),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            _showCreateRegister(notepad: item);
+                          },
+                          child: Icon(
+                            MdiIcons.pencilCircle,
+                            color: Colors.green,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        GestureDetector(
+                          onTap: () {},
+                          child: Icon(
+                            MdiIcons.delete,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

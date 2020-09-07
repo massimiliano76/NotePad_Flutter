@@ -58,6 +58,16 @@ class NotepadHelper {
     return resultID;
   }
 
+  Future<int> updateNotepad(Notepad notepad) async {
+    var dataBase = await database;
+    return await dataBase.update(
+      tableName,
+      notepad.toMap(),
+      where: "id = ?",
+      whereArgs: [notepad.id],
+    );
+  }
+
   getNotePadListHelper() async {
     var dataBase = await database;
 
