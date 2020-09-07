@@ -3,6 +3,8 @@ import 'package:NotePad/database/NotepadHelper.dart';
 import 'package:NotePad/database/models/Notepad.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -68,6 +70,19 @@ class _HomeState extends State<Home> {
     print("Save notepad: ${result.toString()}");
   }
 
+  _convertData(String data) {
+    initializeDateFormatting('pt_BR', null);
+
+    // year: y - month: M - Day: d
+    // var formatador = DateFormat("dd/MMMM/y \'às' H:mm");
+    var formatador = DateFormat.yMMMMd("pt_BR");
+
+    DateTime dataConverted = DateTime.parse(data);
+    String resultConversion = formatador.format(dataConverted);
+
+    return resultConversion;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -97,7 +112,7 @@ class _HomeState extends State<Home> {
 
                 return Card(
                   child: ListTile(
-                    title: Text("${item.title} - ${item.data}"),
+                    title: Text("${item.title} - ${_convertData(item.data)}"),
                     subtitle: Text(item.description),
                   ),
                 );
