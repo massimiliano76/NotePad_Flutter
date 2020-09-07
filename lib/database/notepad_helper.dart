@@ -68,6 +68,15 @@ class NotepadHelper {
     );
   }
 
+  Future<int> deleteNotepad(int id) async {
+    var dataBase = await database;
+    return await dataBase.delete(
+      tableName,
+      where: "id = ?",
+      whereArgs: [id],
+    );
+  }
+
   getNotePadListHelper() async {
     var dataBase = await database;
 

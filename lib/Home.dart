@@ -92,6 +92,11 @@ class _HomeState extends State<Home> {
     _getNotePadList();
   }
 
+  _deleteNotepad(int id) async {
+    await _database.deleteNotepad(id);
+    _getNotePadList();
+  }
+
   _convertData(String data) {
     initializeDateFormatting('pt_BR', null);
 
@@ -152,7 +157,9 @@ class _HomeState extends State<Home> {
                           width: 10,
                         ),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            _deleteNotepad(item.id);
+                          },
                           child: Icon(
                             MdiIcons.delete,
                             color: Colors.red,
