@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:NotePad/screens/screens.dart';
 
 class TodoListScreen extends StatefulWidget {
   TodoListScreen({Key key}) : super(key: key);
@@ -35,7 +36,13 @@ class _TodoListScreenState extends State<TodoListScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).primaryColor,
-        onPressed: () => print("Navigate to add task screen"),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddTasksScreen(),
+          ),
+        ),
+        child: Icon(Icons.add),
       ),
       body: ListView.builder(
         padding: EdgeInsets.symmetric(vertical: 80.0),
